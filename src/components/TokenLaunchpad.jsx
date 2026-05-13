@@ -15,7 +15,7 @@ import {
 import { Buffer } from 'buffer';
 import { Toast } from './Toast';
 
-export function TokenLaunchpad() {
+export function TokenLaunchpad({ network = 'devnet' }) {
     const wallet = useWallet();
     const { connection } = useConnection();
 
@@ -252,7 +252,7 @@ export function TokenLaunchpad() {
                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"></path></svg>
                 </div>
                 <h3 className="text-2xl font-bold mb-2 dark:text-white">Token Launched!</h3>
-                <p className="text-surface-600 dark:text-surface-100 mb-6">Your token is live on the Solana Devnet.</p>
+                <p className="text-surface-600 dark:text-surface-100 mb-6">Your token is live on the Solana {network === 'devnet' ? 'Devnet' : 'Mainnet'}.</p>
                 
                 <div className="bg-surface-100 dark:bg-surface-900/50 p-4 rounded-xl mb-6 relative group border border-transparent dark:border-surface-700">
                     <p className="text-xs text-surface-500 dark:text-surface-300 font-medium mb-1 uppercase tracking-wider">Mint Address</p>
@@ -270,7 +270,7 @@ export function TokenLaunchpad() {
 
                 <div className="flex gap-4 justify-center">
                     <a 
-                        href={`https://explorer.solana.com/address/${successData.address}?cluster=devnet`}
+                        href={`https://explorer.solana.com/address/${successData.address}${network === 'devnet' ? '?cluster=devnet' : ''}`}
                         target="_blank"
                         rel="noreferrer"
                         className="px-6 py-3 bg-surface-200 dark:bg-surface-700 text-surface-900 dark:text-white rounded-xl font-medium hover:bg-surface-300 dark:hover:bg-surface-600 transition-colors"

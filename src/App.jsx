@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react'
 import {
   WalletModalProvider,
@@ -9,8 +10,10 @@ import '@solana/wallet-adapter-react-ui/styles.css'
 import { clusterApiUrl } from '@solana/web3.js'
 
 function App() {
+  const [network, setNetwork] = useState('devnet')
+
   return (
-    <ConnectionProvider endpoint={clusterApiUrl("devnet")}>
+    <ConnectionProvider endpoint={clusterApiUrl(network)}>
       <WalletProvider wallets={[]} autoConnect>
         <WalletModalProvider>
           <div className="min-h-screen bg-gradient-animated flex flex-col font-sans">
@@ -28,7 +31,15 @@ function App() {
                 </h1>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4">
+                <button 
+                  onClick={() => setNetwork(n => n === 'devnet' ? 'mainnet-beta' : 'devnet')}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm font-medium hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-900 dark:text-surface-50"
+                >
+                  <div className={`w-2 h-2 rounded-full ${network === 'devnet' ? 'bg-brand-500' : 'bg-success'} animate-pulse`}></div>
+                  <span className="hidden sm:inline">{network === 'devnet' ? 'Devnet' : 'Mainnet'}</span>
+                  <span className="sm:hidden">{network === 'devnet' ? 'Dev' : 'Main'}</span>
+                </button>
                 <ThemeToggle />
                 <WalletMultiButton />
               </div>
@@ -44,7 +55,7 @@ function App() {
                     Launch your <span className="text-transparent bg-clip-text bg-gradient-to-r from-sol-green to-sol-purple dark:to-brand-300">SPL Token</span> in minutes.
                   </h2>
                   <p className="text-lg text-surface-600 dark:text-surface-100 max-w-lg mx-auto md:mx-0">
-                    No coding required. Define your tokenomics, upload your metadata, and deploy directly to the Solana Devnet.
+                    No coding required. Define your tokenomics, upload your metadata, and deploy directly to the Solana network of your choice.
                   </p>
                   
                   <div className="flex flex-wrap gap-4 justify-center md:justify-start pt-4">
@@ -65,7 +76,7 @@ function App() {
 
                 {/* Launchpad Form Component */}
                 <div className="w-full max-w-md animate-slide-in-right">
-                  <TokenLaunchpad />
+                  <TokenLaunchpad network={network} />
                 </div>
                 
               </div>
