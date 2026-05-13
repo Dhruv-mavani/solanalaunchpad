@@ -51,7 +51,7 @@ function App() {
 
                 {/* Hero / Copy Section */}
                 <div className="flex-1 text-center md:text-left space-y-6">
-                  <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-surface-900 dark:text-white">
+                  <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-surface-600 dark:text-white">
                     Launch your <span className="text-transparent bg-clip-text bg-gradient-to-r from-sol-green to-sol-purple dark:to-brand-300">SPL Token</span> in minutes.
                   </h2>
                   <p className="text-lg text-surface-600 dark:text-surface-100 max-w-lg mx-auto md:mx-0">
