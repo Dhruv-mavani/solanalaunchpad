@@ -17,7 +17,7 @@ function App() {
       <WalletProvider wallets={[]} autoConnect>
         <WalletModalProvider>
           <div className="min-h-screen bg-gradient-animated flex flex-col font-sans">
-            
+
             {/* Top Navigation Bar */}
             <nav className="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
@@ -32,7 +32,7 @@ function App() {
               </div>
 
               <div className="flex items-center gap-2 sm:gap-4">
-                <button 
+                <button
                   onClick={() => setNetwork(n => n === 'devnet' ? 'mainnet-beta' : 'devnet')}
                   className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-sm font-medium hover:bg-surface-200 dark:hover:bg-surface-700 transition-colors text-surface-900 dark:text-surface-50"
                 >
@@ -48,7 +48,7 @@ function App() {
             {/* Main Content */}
             <main className="flex-1 flex flex-col items-center justify-center p-6 sm:p-12">
               <div className="w-full max-w-4xl mx-auto flex flex-col md:flex-row gap-12 items-center justify-center">
-                
+
                 {/* Hero / Copy Section */}
                 <div className="flex-1 text-center md:text-left space-y-6">
                   <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight text-surface-900 dark:text-white">
@@ -57,7 +57,7 @@ function App() {
                   <p className="text-lg text-surface-600 dark:text-surface-100 max-w-lg mx-auto md:mx-0">
                     No coding required. Define your tokenomics, upload your metadata, and deploy directly to the Solana network of your choice.
                   </p>
-                  
+
                   <div className="flex flex-wrap gap-4 justify-center md:justify-start pt-4">
                     <div className="flex items-center gap-2 text-sm font-medium text-surface-500 dark:text-surface-400">
                       <svg className="w-5 h-5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"></path></svg>
@@ -78,7 +78,7 @@ function App() {
                 <div className="w-full max-w-md animate-slide-in-right">
                   <TokenLaunchpad network={network} />
                 </div>
-                
+
               </div>
             </main>
 
