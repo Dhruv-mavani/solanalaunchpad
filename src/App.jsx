@@ -19,7 +19,8 @@ function App() {
           <div className="min-h-screen bg-gradient-animated flex flex-col font-sans">
 
             {/* Top Navigation Bar */}
-            <nav className="bg-white dark:bg-surface-900 border-b border-surface-200 dark:border-surface-800 sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm">
+            {/* Top Navigation Bar */}
+            <nav className="bg-surface-50 dark:bg-surface-900 border-b border-surface-200 dark:border-surface-800 sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm transition-colors duration-300">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-600 to-sol-purple flex items-center justify-center shadow-lg animate-pulse-glow">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
