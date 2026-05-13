@@ -130,6 +130,10 @@ html:not(.dark) .glass {
   background: rgba(255, 255, 255, 0.75);
 }
 
+.glass {
+  background: red !important;
+}
+
 /* ── Wallet adapter button overrides ─────────────────────── */
 .wallet-adapter-button {
   font-family: var(--font-sans) !important;
