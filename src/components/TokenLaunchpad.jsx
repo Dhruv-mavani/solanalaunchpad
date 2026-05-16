@@ -242,16 +242,17 @@ export function TokenLaunchpad({ network = 'devnet' }) {
     };
 
     // UI Helper for Input classes
-    const inputClasses = "w-full bg-surface-100/0 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-surface-900 dark:text-white placeholder-surface-400 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-shadow";
+    const inputClasses = "w-full bg-surface-100/0 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-surface-500/100 dark:text-white placeholder-surface-400 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-shadow";
 
     if (successData) {
         return (
             <div className="glass rounded-3xl p-8 shadow-xl text-center border-t-4 border-t-success animate-slide-in-right relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-success to-transparent"></div>
+                     
                 <div className="w-16 h-16 mx-auto bg-success/20 text-success rounded-full flex items-center justify-center mb-6">
                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"></path></svg>
                 </div>
-                <h3 className="text-2xl font-bold mb-2 dark:text-white">Token Launched!</h3>
+                <h3 className="text-2xl font-bold mb-2 text-gray-500">Token Launched!</h3>
                 <p className="text-surface-600 dark:text-surface-100 mb-6">Your token is live on the Solana {network === 'devnet' ? 'Devnet' : 'Mainnet'}.</p>
 
                 <div className="bg-surface-100 dark:bg-surface-900/50 p-4 rounded-xl mb-6 relative group border border-transparent dark:border-surface-700">
@@ -347,7 +348,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                             <h3 className="text-xl font-bold text-gray-500">Visual Identity</h3>
 
                             <div
-                                className="border-2 border-dashed border-brand-300 dark:border-surface-600 rounded-2xl p-8 text-center bg-brand-50/50 dark:bg-surface-900/30 hover:bg-brand-50 dark:hover:bg-surface-800/50 transition-colors cursor-pointer relative group"
+                                className="border-2 border-dashed border-brand-300 dark:border-surface-600 rounded-2xl p-8 text-center bg-brand-50/50 dark:bg-surface-900/30 hover:bg-brand-50 dark:hover:bg-surface-600/0 transition-colors cursor-pointer relative group"
                                 onDragOver={e => e.preventDefault()}
                                 onDrop={handleImageDrop}
                                 onClick={() => fileInputRef.current.click()}
@@ -391,7 +392,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                                 <p className="text-xs text-gray-500 mt-2">Tokens will be minted to your connected wallet.</p>
                             </div>
 
-                            <div className="bg-surface-100/50 bg-white p-4 rounded-2xl border border-surface-200 dark:border-surface-800">
+                            <div className="bg-surface-100/50 bg-surface-500/0 p-4 rounded-2xl border border-surface-200 dark:border-surface-800">
                                 <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Summary</h4>
                                 <div className="flex items-center gap-4">
                                     <img src={previewUrl} alt="Token icon" className="w-12 h-12 rounded-full object-cover bg-surface-200 dark:bg-surface-700" />
