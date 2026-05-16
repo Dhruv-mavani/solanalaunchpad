@@ -29,13 +29,13 @@ export function TokenLaunchpad({ network = 'devnet' }) {
     });
     const [imageFile, setImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState(null);
-    
+
     // UI State
     const [isLoading, setIsLoading] = useState(false);
     const [loadingMsg, setLoadingMsg] = useState('');
     const [toast, setToast] = useState(null);
     const [successData, setSuccessData] = useState(null);
-    
+
     const fileInputRef = useRef(null);
 
     const handleInputChange = (e) => {
@@ -85,10 +85,10 @@ export function TokenLaunchpad({ network = 'devnet' }) {
         try {
             setIsLoading(true);
             setLoadingMsg('Generating Mint Keypair...');
-            
+
             const mintKeypair = Keypair.generate();
             const lamports = await connection.getMinimumBalanceForRentExemption(MINT_SIZE);
-            
+
             setLoadingMsg('Preparing Transaction...');
             const transaction = new Transaction().add(
                 SystemProgram.createAccount({
@@ -214,7 +214,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
             transaction.partialSign(mintKeypair);
 
             const signature = await wallet.sendTransaction(transaction, connection);
-            
+
             setLoadingMsg('Confirming Transaction on network...');
             await connection.confirmTransaction(signature);
 
@@ -242,7 +242,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
     };
 
     // UI Helper for Input classes
-    const inputClasses = "w-full bg-surface-100 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-surface-900 dark:text-white placeholder-surface-400 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-shadow";
+    const inputClasses = "w-full bg-surface-100/0 dark:bg-surface-900/50 border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 text-surface-900 dark:text-white placeholder-surface-400 dark:placeholder-surface-400 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-shadow";
 
     if (successData) {
         return (
@@ -253,11 +253,11 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                 </div>
                 <h3 className="text-2xl font-bold mb-2 dark:text-white">Token Launched!</h3>
                 <p className="text-surface-600 dark:text-surface-100 mb-6">Your token is live on the Solana {network === 'devnet' ? 'Devnet' : 'Mainnet'}.</p>
-                
+
                 <div className="bg-surface-100 dark:bg-surface-900/50 p-4 rounded-xl mb-6 relative group border border-transparent dark:border-surface-700">
                     <p className="text-xs text-surface-500 dark:text-surface-300 font-medium mb-1 uppercase tracking-wider">Mint Address</p>
                     <p className="font-mono text-sm break-all dark:text-white">{successData.address}</p>
-                    <button 
+                    <button
                         onClick={() => {
                             navigator.clipboard.writeText(successData.address);
                             showToast("Address copied!", "success");
@@ -269,7 +269,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                 </div>
 
                 <div className="flex gap-4 justify-center">
-                    <a 
+                    <a
                         href={`https://explorer.solana.com/address/${successData.address}${network === 'devnet' ? '?cluster=devnet' : ''}`}
                         target="_blank"
                         rel="noreferrer"
@@ -277,7 +277,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                     >
                         View on Explorer
                     </a>
-                    <button 
+                    <button
                         onClick={resetForm}
                         className="px-6 py-3 bg-brand-600 text-white rounded-xl font-medium hover:bg-brand-700 transition-colors shadow-lg shadow-brand-500/20"
                     >
@@ -297,7 +297,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
             )}
 
             <div className="glass rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden">
-                
+
                 {isLoading && (
                     <div className="absolute inset-0 bg-white/60 dark:bg-surface-900/80 backdrop-blur-md z-40 flex flex-col items-center justify-center rounded-3xl transition-all">
                         <div className="w-16 h-16 border-4 border-brand-200 dark:border-brand-800 border-t-brand-500 rounded-full animate-spin mb-4"></div>
@@ -310,11 +310,10 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                 <div className="flex items-center justify-between mb-8 relative">
                     <div className="absolute left-0 right-0 top-1/2 h-1 bg-surface-200 dark:bg-surface-800 -z-10 rounded-full transform -translate-y-1/2"></div>
                     <div className="absolute left-0 top-1/2 h-1 bg-brand-500 -z-10 rounded-full transform -translate-y-1/2 transition-all duration-300" style={{ width: `${((step - 1) / 2) * 100}%` }}></div>
-                    
+
                     {[1, 2, 3].map(num => (
-                        <div key={num} className={`w-8 h-8 rounded-full flex items-center justify-center font-medium transition-all duration-300 ${
-                            step >= num ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30' : 'bg-surface-100 dark:bg-surface-900 text-surface-400 border border-surface-200 dark:border-surface-700'
-                        }`}>
+                        <div key={num} className={`w-8 h-8 rounded-full flex items-center justify-center font-medium transition-all duration-300 ${step >= num ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30' : 'bg-surface-100 dark:bg-surface-900 text-surface-400 border border-surface-200 dark:border-surface-700'
+                            }`}>
                             {step > num ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"></path></svg> : num}
                         </div>
                     ))}
@@ -324,18 +323,18 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                     {/* STEP 1: Identity */}
                     {step === 1 && (
                         <div className="space-y-5 animate-slide-in-right">
-                            <h3 className="text-xl font-bold text-surface-900 dark:text-white">Token Identity</h3>
+                            <h3 className="text-xl font-bold text-gray-500">Token Identity</h3>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">Token Name *</label>
+                                    <label className="block text-sm font-medium mb-1 text-gray-500">Token Name *</label>
                                     <input type="text" name="name" value={formData.name} onChange={handleInputChange} placeholder="e.g. Solana Launchpad Token" className={inputClasses} />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">Symbol *</label>
+                                    <label className="block text-sm font-medium text-gray-500">Symbol *</label>
                                     <input type="text" name="symbol" value={formData.symbol} onChange={handleInputChange} placeholder="e.g. SLT" className={inputClasses} maxLength={10} />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">Description</label>
+                                    <label className="block text-sm font-medium text-gray-500">Description *</label>
                                     <textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="Describe your token's utility or vision..." className={`${inputClasses} resize-none h-24`} />
                                 </div>
                             </div>
@@ -345,22 +344,22 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                     {/* STEP 2: Image */}
                     {step === 2 && (
                         <div className="space-y-5 animate-slide-in-right">
-                            <h3 className="text-xl font-bold text-surface-900 dark:text-white">Visual Identity</h3>
-                            
-                            <div 
+                            <h3 className="text-xl font-bold text-gray-500">Visual Identity</h3>
+
+                            <div
                                 className="border-2 border-dashed border-brand-300 dark:border-surface-600 rounded-2xl p-8 text-center bg-brand-50/50 dark:bg-surface-900/30 hover:bg-brand-50 dark:hover:bg-surface-800/50 transition-colors cursor-pointer relative group"
                                 onDragOver={e => e.preventDefault()}
                                 onDrop={handleImageDrop}
                                 onClick={() => fileInputRef.current.click()}
                             >
-                                <input 
-                                    type="file" 
-                                    ref={fileInputRef} 
-                                    onChange={handleImageDrop} 
-                                    accept="image/*" 
-                                    className="hidden" 
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleImageDrop}
+                                    accept="image/*"
+                                    className="hidden"
                                 />
-                                
+
                                 {previewUrl ? (
                                     <div className="relative inline-block">
                                         <img src={previewUrl} alt="Token preview" className="w-32 h-32 rounded-full object-cover border-4 border-white dark:border-surface-800 shadow-xl" />
@@ -384,21 +383,21 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                     {/* STEP 3: Supply & Review */}
                     {step === 3 && (
                         <div className="space-y-6 animate-slide-in-right">
-                            <h3 className="text-xl font-bold text-surface-900 dark:text-white">Tokenomics & Review</h3>
-                            
+                            <h3 className="text-xl font-bold text-gray-500">Tokenomics & Review</h3>
+
                             <div>
-                                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-1">Initial Supply *</label>
+                                <label className="block text-sm font-medium text-gray-500 mb-1 ">Initial Supply *</label>
                                 <input type="number" name="supply" value={formData.supply} onChange={handleInputChange} placeholder="e.g. 1000000" className={inputClasses} min="1" />
-                                <p className="text-xs text-surface-500 mt-2">Tokens will be minted to your connected wallet.</p>
+                                <p className="text-xs text-gray-500 mt-2">Tokens will be minted to your connected wallet.</p>
                             </div>
 
-                            <div className="bg-surface-100/50 dark:bg-surface-900/50 p-4 rounded-2xl border border-surface-200 dark:border-surface-800">
-                                <h4 className="text-sm font-semibold text-surface-500 uppercase tracking-wider mb-3">Summary</h4>
+                            <div className="bg-surface-100/50 bg-white p-4 rounded-2xl border border-surface-200 dark:border-surface-800">
+                                <h4 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-3">Summary</h4>
                                 <div className="flex items-center gap-4">
                                     <img src={previewUrl} alt="Token icon" className="w-12 h-12 rounded-full object-cover bg-surface-200 dark:bg-surface-700" />
                                     <div>
-                                        <p className="font-bold text-surface-900 dark:text-white">{formData.name} <span className="text-brand-500 bg-brand-100 dark:bg-surface-700 dark:text-brand-300 px-2 py-0.5 rounded text-xs ml-1">{formData.symbol}</span></p>
-                                        <p className="text-sm text-surface-600 dark:text-surface-200">Supply: {Number(formData.supply || 0).toLocaleString()}</p>
+                                        <p className="font-bold text-gray-500">{formData.name} <span className="text-brand-500 bg-brand-100 dark:bg-surface-700 dark:text-brand-300 px-2 py-0.5 rounded text-xs ml-1">{formData.symbol}</span></p>
+                                        <p className="text-sm text-gray-500">Supply: {Number(formData.supply || 0).toLocaleString()}</p>
                                     </div>
                                 </div>
                             </div>
@@ -409,23 +408,23 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                 {/* Footer Controls */}
                 <div className="flex items-center gap-3 mt-8 pt-6 border-t border-surface-200 dark:border-surface-800">
                     {step > 1 && (
-                        <button 
+                        <button
                             onClick={prevStep}
                             className="px-6 py-3 rounded-xl font-medium text-surface-600 dark:text-surface-100 bg-surface-100 dark:bg-surface-900/50 border border-transparent dark:border-surface-700 hover:bg-surface-200 dark:hover:bg-surface-800 transition-colors"
                         >
                             Back
                         </button>
                     )}
-                    
+
                     {step < 3 ? (
-                        <button 
+                        <button
                             onClick={nextStep}
                             className="flex-1 px-6 py-3 rounded-xl font-medium text-white bg-brand-600 hover:bg-brand-700 transition-colors shadow-lg shadow-brand-500/20"
                         >
                             Continue
                         </button>
                     ) : (
-                        <button 
+                        <button
                             onClick={createToken}
                             disabled={isLoading}
                             className="flex-1 px-6 py-3 rounded-xl font-medium text-white bg-gradient-to-r from-brand-600 to-sol-purple hover:from-brand-700 hover:to-brand-600 transition-colors shadow-lg shadow-brand-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
