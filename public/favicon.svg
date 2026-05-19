@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#7c3aed"/>
+      <stop offset="50%" style="stop-color:#6d28d9"/>
+      <stop offset="100%" style="stop-color:#14f195"/>
+    </linearGradient>
+    <linearGradient id="rocket" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff"/>
+      <stop offset="100%" style="stop-color:#e2e8f0"/>
+    </linearGradient>
+    <linearGradient id="flame" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="50%" style="stop-color:#ef4444"/>
+      <stop offset="100%" style="stop-color:#9333ea"/>
+    </linearGradient>
+    <linearGradient id="sol" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#14f195"/>
+      <stop offset="100%" style="stop-color:#9945ff"/>
+    </linearGradient>
+  </defs>
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="256" fill="url(#bg)"/>
+  <!-- Rocket body -->
+  <path d="M256 80 C256 80 320 160 320 280 L192 280 C192 160 256 80 256 80Z" fill="url(#rocket)" stroke="#6d28d9" stroke-width="4"/>
+  <!-- Rocket window -->
+  <circle cx="256" cy="200" r="30" fill="#6d28d9" stroke="#14f195" stroke-width="4"/>
+  <circle cx="256" cy="200" r="16" fill="#14f195" opacity="0.6"/>
+  <!-- Rocket fins -->
+  <path d="M192 240 L152 300 L192 280Z" fill="url(#sol)" opacity="0.9"/>
+  <path d="M320 240 L360 300 L320 280Z" fill="url(#sol)" opacity="0.9"/>
+  <!-- Rocket base -->
+  <rect x="212" y="275" width="88" height="20" rx="4" fill="#4c1d95"/>
+  <!-- Flame -->
+  <path d="M230 295 Q256 400 282 295 Q270 360 256 380 Q242 360 230 295Z" fill="url(#flame)" opacity="0.9"/>
+  <path d="M240 295 Q256 370 272 295 Q264 340 256 355 Q248 340 240 295Z" fill="#fbbf24" opacity="0.8"/>
+  <!-- Solana-style horizontal bars on rocket -->
+  <rect x="210" y="230" width="92" height="6" rx="3" fill="url(#sol)" opacity="0.7"/>
+  <rect x="210" y="245" width="92" height="6" rx="3" fill="url(#sol)" opacity="0.5"/>
+  <rect x="210" y="260" width="92" height="6" rx="3" fill="url(#sol)" opacity="0.3"/>
+</svg>
