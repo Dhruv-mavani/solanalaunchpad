@@ -126,7 +126,7 @@ function MainAppContent({ network, handleSetNetwork, view, handleSetView }) {
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-brand-400 bg-brand-500/10 px-4 py-1.5 rounded-full border border-brand-500/20">
                 Solana Safe-Launch Portal
               </span>
-              <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-tight">
+              <h2 className="text-4xl md:text-6xl font-black tracking-tight text-gray-500 dark:text-white leading-tight">
                 Access Token Launchpad & AMM Suite
               </h2>
               <p className="text-lg text-surface-600 dark:text-surface-400 leading-relaxed">
@@ -153,8 +153,8 @@ function MainAppContent({ network, handleSetNetwork, view, handleSetView }) {
                   color: "from-sol-purple/10 to-sol-purple/5 border-sol-purple/20 text-sol-purple"
                 }
               ].map((item, i) => (
-                <div key={i} className="glass rounded-3xl p-5 border border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent shadow-sm flex flex-col gap-2 hover:border-white/10 transition-colors">
-                  <h4 className="font-extrabold text-white text-sm">{item.title}</h4>
+                <div key={i} className="glass rounded-3xl p-5 border border-black/5 dark:border-white/5 bg-gradient-to-b from-white/[0.02] to-transparent shadow-sm flex flex-col gap-2 hover:border-black/10 dark:hover:border-white/10 transition-colors">
+                  <h4 className="font-extrabold text-gray-500 dark:text-white text-sm">{item.title}</h4>
                   <p className="text-xs text-surface-500 leading-relaxed font-medium">{item.desc}</p>
                 </div>
               ))}

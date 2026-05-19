@@ -982,26 +982,26 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                                     </div>
                                 </div>
 
-                                <div className="space-y-2 bg-black/10 p-3.5 rounded-xl text-xs">
+                                <div className="space-y-2 bg-black/5 dark:bg-black/10 p-3.5 rounded-xl text-xs">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-surface-500">Pool ID</span>
+                                        <span className="text-surface-500 font-semibold">Pool ID</span>
                                         <div className="flex items-center gap-1.5 font-mono">
-                                            <span className="text-surface-400 font-semibold">{pool.poolId.slice(0, 6)}...{pool.poolId.slice(-6)}</span>
+                                            <span className="text-gray-500 dark:text-surface-400 font-semibold">{pool.poolId.slice(0, 6)}...{pool.poolId.slice(-6)}</span>
                                             <button 
                                                 onClick={() => handleCopy(pool.poolId, pool.poolId)}
-                                                className="p-1 hover:bg-white/10 rounded text-surface-500 transition-colors"
+                                                className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded text-surface-500 transition-colors"
                                             >
                                                 {copiedId === pool.poolId ? <Check size={12} className="text-sol-green" /> : <Copy size={12} />}
                                             </button>
                                         </div>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-surface-500">Deposited {pool.tokenA.symbol}</span>
-                                        <span className="font-bold text-surface-400">{pool.tokenA.amount.toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
+                                        <span className="text-surface-500 font-semibold">Deposited {pool.tokenA.symbol}</span>
+                                        <span className="font-bold text-gray-500 dark:text-surface-400">{pool.tokenA.amount.toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-surface-500">Deposited {pool.tokenB.symbol}</span>
-                                        <span className="font-bold text-surface-400">{pool.tokenB.amount.toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
+                                        <span className="text-surface-500 font-semibold">Deposited {pool.tokenB.symbol}</span>
+                                        <span className="font-bold text-gray-500 dark:text-surface-400">{pool.tokenB.amount.toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
                                     </div>
                                 </div>
 
@@ -1013,7 +1013,7 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                                             setSimSwapDirection('A_to_B');
                                             setIsViewModalOpen(true);
                                         }}
-                                        className="flex-1 py-2 rounded-lg font-bold text-xs text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all flex items-center justify-center gap-1"
+                                        className="flex-1 py-2 rounded-lg font-bold text-xs text-surface-500 dark:text-surface-400 hover:text-gray-900 dark:hover:text-white bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1"
                                     >
                                         <Eye size={13} className="text-sol-green" />
                                         View Pool
@@ -1029,7 +1029,7 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                                         href={`https://explorer.solana.com/address/${pool.poolId}?cluster=${network}`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="flex-shrink-0 px-2 py-2 rounded-lg font-bold text-xs text-surface-400 hover:text-surface-500 border border-white/5 hover:border-white/10 glass transition-all flex items-center justify-center gap-1"
+                                        className="flex-shrink-0 px-2 py-2 rounded-lg font-bold text-xs text-surface-500 dark:text-surface-400 hover:text-gray-900 dark:hover:text-white bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1"
                                         title="View on Explorer"
                                     >
                                         <ExternalLink size={13} />
