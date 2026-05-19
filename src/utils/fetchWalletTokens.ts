@@ -10,6 +10,7 @@ export async function fetchWalletTokens(
     let tokenAccounts;
 
     try {
+        // Try the primary connection first
         tokenAccounts = await connection.getParsedTokenAccountsByOwner(
             publicKey,
             {
@@ -17,20 +18,36 @@ export async function fetchWalletTokens(
             }
         );
     } catch (err) {
-        console.warn("Primary RPC token fetch failed, retrying with public Solana RPC...", err);
+        console.warn("Primary RPC token fetch failed, retrying with public Solana RPCs...", err);
         const isDevnet = connection.rpcEndpoint.includes("devnet") || connection.rpcEndpoint.includes("alchemy");
-        const fallbackUrl = isDevnet ? "https://api.devnet.solana.com" : "https://api.mainnet-beta.solana.com";
-        activeConnection = new Connection(fallbackUrl, "confirmed");
         
-        try {
-            tokenAccounts = await activeConnection.getParsedTokenAccountsByOwner(
-                publicKey,
-                {
-                    programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
-                }
-            );
-        } catch (fallbackErr) {
-            console.error("All token account fetch attempts failed:", fallbackErr);
+        const fallbackUrls = isDevnet ? [
+            "https://api.devnet.solana.com",
+            "https://devnet.solana.com",
+            "https://rpc.ankr.com/solana_devnet"
+        ] : [
+            "https://api.mainnet-beta.solana.com"
+        ];
+
+        let success = false;
+        for (const url of fallbackUrls) {
+            try {
+                activeConnection = new Connection(url, "confirmed");
+                tokenAccounts = await activeConnection.getParsedTokenAccountsByOwner(
+                    publicKey,
+                    {
+                        programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
+                    }
+                );
+                success = true;
+                break;
+            } catch (fallbackErr) {
+                console.log(`Fallback ${url} failed...`);
+            }
+        }
+
+        if (!success || !tokenAccounts) {
+            console.error("All token account fetch attempts failed.");
             return [];
         }
     }
