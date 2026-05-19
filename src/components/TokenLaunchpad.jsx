@@ -67,18 +67,20 @@ function SafeTokenImage({ src, alt, className }) {
 
     const gateways = [];
     if (src && (src.startsWith("http://") || src.startsWith("https://"))) {
-        // Upgrade http to https to avoid Vercel mixed-content blocking
         const secureSrc = src.startsWith("http://") ? src.replace("http://", "https://") : src;
-        gateways.push(secureSrc);
+        // Skip adding notoriously blocked gateways to the primary slot to prevent ERR_CONNECTION_RESET logs
+        if (!secureSrc.includes("gateway.pinata.cloud") && !secureSrc.includes("ipfs.io") && !secureSrc.includes("cloudflare-ipfs") && !secureSrc.includes("dweb.link")) {
+            gateways.push(secureSrc);
+        }
     }
     
     if (ipfsHash) {
+        // High-resilience gateways that avoid "ipfs" ISP blocklists and rate limits
         gateways.push(`https://gateway.ipfscdn.io/ipfs/${ipfsHash}`);
+        gateways.push(`https://w3s.link/ipfs/${ipfsHash}`);
+        gateways.push(`https://4everland.io/ipfs/${ipfsHash}`);
+        gateways.push(`https://hardbin.com/ipfs/${ipfsHash}`);
         gateways.push(`https://cf-ipfs.com/ipfs/${ipfsHash}`);
-        gateways.push(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
-        gateways.push(`https://ipfs.io/ipfs/${ipfsHash}`);
-        gateways.push(`https://cloudflare-ipfs.com/ipfs/${ipfsHash}`);
-        gateways.push(`https://dweb.link/ipfs/${ipfsHash}`);
     }
 
     const [gatewayIndex, setGatewayIndex] = useState(0);

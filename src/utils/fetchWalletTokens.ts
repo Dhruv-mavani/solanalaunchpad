@@ -100,20 +100,25 @@ export async function fetchWalletTokens(
 
                 const gateways = [
                     "https://gateway.ipfscdn.io/ipfs/",
-                    "https://cf-ipfs.com/ipfs/",
-                    "https://gateway.pinata.cloud/ipfs/",
-                    "https://ipfs.io/ipfs/",
-                    "https://dweb.link/ipfs/",
-                    "https://cloudflare-ipfs.com/ipfs/"
+                    "https://w3s.link/ipfs/",
+                    "https://4everland.io/ipfs/",
+                    "https://hardbin.com/ipfs/",
+                    "https://cf-ipfs.com/ipfs/"
                 ];
 
                 let json = null;
 
                 // Try direct HTTP fetch first (upgrading to HTTPS)
                 try {
-                    const secureUri = metadataUri.startsWith("http://")
+                    let secureUri = metadataUri.startsWith("http://")
                         ? metadataUri.replace("http://", "https://")
                         : metadataUri;
+                    
+                    // Route around known blocked hostnames before even attempting
+                    if (secureUri.includes("gateway.pinata.cloud") || secureUri.includes("ipfs.io") || secureUri.includes("cloudflare-ipfs")) {
+                        secureUri = `https://gateway.ipfscdn.io/ipfs/${hash}`;
+                    }
+
                     const response = await fetch(secureUri);
                     if (response.ok) {
                         json = await response.json();
