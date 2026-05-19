@@ -53,14 +53,6 @@ function getSafeIPFSUrl(url) {
 }
 
 function SafeTokenImage({ src, alt, className }) {
-    const gateways = [
-        "https://cloudflare-ipfs.com/ipfs/",
-        "https://dweb.link/ipfs/",
-        "https://nftstorage.link/ipfs/",
-        "https://gateway.pinata.cloud/ipfs/",
-        "https://ipfs.io/ipfs/"
-    ];
-    
     let ipfsHash = "";
     if (src) {
         if (src.startsWith("ipfs://")) {
@@ -72,17 +64,30 @@ function SafeTokenImage({ src, alt, className }) {
             }
         }
     }
+
+    const gateways = [];
+    if (src && (src.startsWith("http://") || src.startsWith("https://"))) {
+        // Upgrade http to https to avoid Vercel mixed-content blocking
+        const secureSrc = src.startsWith("http://") ? src.replace("http://", "https://") : src;
+        gateways.push(secureSrc);
+    }
     
+    if (ipfsHash) {
+        gateways.push(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
+        gateways.push(`https://ipfs.io/ipfs/${ipfsHash}`);
+        gateways.push(`https://cloudflare-ipfs.com/ipfs/${ipfsHash}`);
+        gateways.push(`https://dweb.link/ipfs/${ipfsHash}`);
+    }
+
     const [gatewayIndex, setGatewayIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
     
-    let currentSrc = src;
-    if (ipfsHash && gatewayIndex < gateways.length) {
-        currentSrc = `${gateways[gatewayIndex]}${ipfsHash}`;
-    }
+    const currentSrc = gateways.length > 0 && gatewayIndex < gateways.length 
+        ? gateways[gatewayIndex] 
+        : src;
     
     const handleError = () => {
-        if (ipfsHash && gatewayIndex < gateways.length - 1) {
+        if (gateways.length > 0 && gatewayIndex < gateways.length - 1) {
             setGatewayIndex(prev => prev + 1);
         } else {
             setHasError(true);
