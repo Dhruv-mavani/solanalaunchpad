@@ -258,8 +258,11 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
     const syncExistingPools = async (isManual = false) => {
         if (!publicKey) return;
 
+        // Alchemy Free Tier completely blocks getProgramAccounts. Skip it instantly to avoid loud 400 console errors.
+        const isAlchemy = connection.rpcEndpoint.includes("alchemy.com");
+
         // If programAccounts is restricted, silently skip background checks to prevent dev console 400 errors
-        if (!isProgramAccountsSupported && !isManual) {
+        if ((!isProgramAccountsSupported || isAlchemy) && !isManual) {
             return;
         }
 

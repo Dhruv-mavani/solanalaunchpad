@@ -77,6 +77,9 @@ function SafeTokenImage({ src, alt, className }) {
     if (ipfsHash) {
         // High-resilience gateways that avoid "ipfs" ISP blocklists and rate limits
         gateways.push(`https://gateway.ipfscdn.io/ipfs/${ipfsHash}`);
+        gateways.push(`https://gateway.lighthouse.storage/ipfs/${ipfsHash}`);
+        gateways.push(`https://ipfs.crossbell.io/ipfs/${ipfsHash}`);
+        gateways.push(`https://ipfs.near.social/ipfs/${ipfsHash}`);
         gateways.push(`https://w3s.link/ipfs/${ipfsHash}`);
         gateways.push(`https://4everland.io/ipfs/${ipfsHash}`);
         gateways.push(`https://hardbin.com/ipfs/${ipfsHash}`);
