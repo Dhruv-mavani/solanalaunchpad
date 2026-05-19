@@ -100,13 +100,13 @@ export async function fetchWalletTokens(
 
                 const gateways = [
                     "https://gateway.ipfscdn.io/ipfs/",
-                    "https://gateway.lighthouse.storage/ipfs/",
                     "https://ipfs.crossbell.io/ipfs/",
                     "https://ipfs.near.social/ipfs/",
                     "https://w3s.link/ipfs/",
                     "https://4everland.io/ipfs/",
                     "https://hardbin.com/ipfs/",
-                    "https://cf-ipfs.com/ipfs/"
+                    "https://cf-ipfs.com/ipfs/",
+                    "https://gateway.pinata.cloud/ipfs/"
                 ];
 
                 let json = null;

@@ -261,8 +261,15 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
         // Alchemy Free Tier completely blocks getProgramAccounts. Skip it instantly to avoid loud 400 console errors.
         const isAlchemy = connection.rpcEndpoint.includes("alchemy.com");
 
+        if (isAlchemy) {
+            if (isManual) {
+                showToast("Alchemy Free Tier does not support syncing all pools. Please use a public RPC.", "error");
+            }
+            return;
+        }
+
         // If programAccounts is restricted, silently skip background checks to prevent dev console 400 errors
-        if ((!isProgramAccountsSupported || isAlchemy) && !isManual) {
+        if (!isProgramAccountsSupported && !isManual) {
             return;
         }
 
