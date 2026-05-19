@@ -73,6 +73,8 @@ function SafeTokenImage({ src, alt, className }) {
     }
     
     if (ipfsHash) {
+        gateways.push(`https://gateway.ipfscdn.io/ipfs/${ipfsHash}`);
+        gateways.push(`https://cf-ipfs.com/ipfs/${ipfsHash}`);
         gateways.push(`https://gateway.pinata.cloud/ipfs/${ipfsHash}`);
         gateways.push(`https://ipfs.io/ipfs/${ipfsHash}`);
         gateways.push(`https://cloudflare-ipfs.com/ipfs/${ipfsHash}`);

@@ -99,6 +99,8 @@ export async function fetchWalletTokens(
                 }
 
                 const gateways = [
+                    "https://gateway.ipfscdn.io/ipfs/",
+                    "https://cf-ipfs.com/ipfs/",
                     "https://gateway.pinata.cloud/ipfs/",
                     "https://ipfs.io/ipfs/",
                     "https://dweb.link/ipfs/",
