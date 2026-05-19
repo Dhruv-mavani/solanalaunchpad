@@ -6,23 +6,40 @@ export async function fetchWalletTokens(
     connection: Connection,
     publicKey: PublicKey
 ): Promise<TokenData[]> {
+    let activeConnection = connection;
+    let tokenAccounts;
 
-    const tokenAccounts =
-        await connection.getParsedTokenAccountsByOwner(
+    try {
+        tokenAccounts = await connection.getParsedTokenAccountsByOwner(
             publicKey,
             {
-                programId:
-                    new PublicKey(
-                        "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
-                    )
+                programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
             }
         );
+    } catch (err) {
+        console.warn("Primary RPC token fetch failed, retrying with public Solana RPC...", err);
+        const isDevnet = connection.rpcEndpoint.includes("devnet") || connection.rpcEndpoint.includes("alchemy");
+        const fallbackUrl = isDevnet ? "https://api.devnet.solana.com" : "https://api.mainnet-beta.solana.com";
+        activeConnection = new Connection(fallbackUrl, "confirmed");
+        
+        try {
+            tokenAccounts = await activeConnection.getParsedTokenAccountsByOwner(
+                publicKey,
+                {
+                    programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
+                }
+            );
+        } catch (fallbackErr) {
+            console.error("All token account fetch attempts failed:", fallbackErr);
+            return [];
+        }
+    }
 
     const tokens: TokenData[] = [];
 
     // Fetch native SOL balance
     try {
-        const solBalance = await connection.getBalance(publicKey);
+        const solBalance = await activeConnection.getBalance(publicKey);
         if (solBalance > 0) {
             tokens.push({
                 mint: "So11111111111111111111111111111111111111112",
@@ -39,7 +56,6 @@ export async function fetchWalletTokens(
     }
 
     for (const account of tokenAccounts.value) {
-
         const parsedInfo = account.account.data.parsed.info;
         const balance = parsedInfo.tokenAmount.uiAmount;
         const decimals = parsedInfo.tokenAmount.decimals;
@@ -48,7 +64,7 @@ export async function fetchWalletTokens(
         if (!balance || balance <= 0) continue;
 
         // Fetch Metaplex metadata
-        const metadata = await getTokenMetadata(connection, parsedInfo.mint);
+        const metadata = await getTokenMetadata(activeConnection, parsedInfo.mint);
 
         let image = "";
         let description = "";
@@ -74,7 +90,20 @@ export async function fetchWalletTokens(
 
                 let json = null;
 
-                if (hash) {
+                // Try direct HTTP fetch first (upgrading to HTTPS)
+                try {
+                    const secureUri = metadataUri.startsWith("http://")
+                        ? metadataUri.replace("http://", "https://")
+                        : metadataUri;
+                    const response = await fetch(secureUri);
+                    if (response.ok) {
+                        json = await response.json();
+                    }
+                } catch (e) {
+                    console.log("Direct metadata fetch failed, retrying fallbacks...");
+                }
+
+                if (!json && hash) {
                     for (const gateway of gateways) {
                         try {
                             const response = await fetch(`${gateway}${hash}`);
@@ -86,29 +115,17 @@ export async function fetchWalletTokens(
                             continue;
                         }
                     }
-                } else {
-                    const response = await fetch(metadataUri);
-                    if (response.ok) json = await response.json();
                 }
 
-                if (!json) throw new Error("Metadata fetch failed from all sources");
-
-                if (json.image) {
-                    let imageHash = "";
-                    if (json.image.startsWith("ipfs://")) {
-                        imageHash = json.image.replace("ipfs://", "");
-                    } else if (json.image.includes("/ipfs/")) {
-                        imageHash = json.image.split("/ipfs/")[1];
+                if (json) {
+                    if (json.image) {
+                        // Upgrade http to https to avoid Vercel mixed content block
+                        image = json.image.startsWith("http://")
+                            ? json.image.replace("http://", "https://")
+                            : json.image;
                     }
-
-                    if (imageHash) {
-                        image = `https://gateway.pinata.cloud/ipfs/${imageHash}`;
-                    } else {
-                        image = json.image;
-                    }
+                    description = json.description || "";
                 }
-
-                description = json.description || "";
             } catch (err) {
                 console.log("Failed to fetch JSON metadata");
             }
