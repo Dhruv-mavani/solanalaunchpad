@@ -888,9 +888,6 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
 
     return (
         <div className="w-full max-w-4xl mx-auto text-center space-y-8 animate-slide-in-right">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-sol-green/10 border border-sol-green/20 text-sol-green text-sm font-bold uppercase tracking-widest">
-                Development Mode
-            </div>
             <h2 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-gray-500">
                 Liquidity <span className="text-transparent bg-clip-text bg-gradient-to-r from-sol-green to-brand-500">Pool Builder</span>
             </h2>
@@ -901,11 +898,11 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
                 <button onClick={handleInitializePoolClick} className="glass p-8 rounded-3xl border border-white/10 flex flex-col items-center gap-4 group hover:border-sol-green/80! transition-all duration-300">
                     <Plus size={32} className="text-sm font-bold opacity-50 text-gray-500 group-hover:text-sol-green group-hover:opacity-100 transition-all"></Plus>
-                    <span className="font-bold text-lg text-surface-400 group-hover:text-surface-200 transition-colors">Initialize Pool</span>
+                    <span className="font-bold text-lg text-surface-400 group-hover:text-sol-green transition-colors">Initialize Pool</span>
                 </button>
-                <button onClick={() => handleAddLiquidityClick()} className="glass p-8 rounded-3xl border border-white/10 flex flex-col items-center gap-4 group hover:border-brand-500/80! transition-all duration-300">
-                    <Plus size={32} className="text-sm font-bold opacity-50 text-gray-500 group-hover:text-brand-500 group-hover:opacity-100 transition-all"></Plus>
-                    <span className="font-bold text-lg text-surface-400 group-hover:text-surface-200 transition-colors">Add Liquidity</span>
+                <button onClick={() => handleAddLiquidityClick()} className="glass p-8 rounded-3xl border border-white/10 flex flex-col items-center gap-4 group hover:border-sol-green/80! transition-all duration-300">
+                    <Plus size={32} className="text-sm font-bold opacity-50 text-gray-500 group-hover:text-sol-green group-hover:opacity-100 transition-all"></Plus>
+                    <span className="font-bold text-lg text-surface-400 group-hover:text-sol-green transition-colors">Add Liquidity</span>
                 </button>
             </div>
 
@@ -919,9 +916,9 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                                 : 'bg-white/5 hover:bg-white/10 text-brand-400 border-white/5 hover:border-white/10'
                         }`}
                     >
-                        <Layers className="w-5 h-5 text-brand-500 animate-pulse" />
+                        <Layers className="w-5 h-5 text-brand-300/100 animate-pulse" />
                         <span>{showPoolsConsole ? 'Hide Your Liquidity Pools' : 'View Your Liquidity Pools'}</span>
-                        <span className="bg-brand-500/20 px-2 py-0.5 rounded-full text-xs font-bold text-white">
+                        <span className="bg-brand-400/100 px-2 py-0.5 rounded-full text-xs font-bold text-white">
                             {createdPools.length}
                         </span>
                     </button>
@@ -1038,7 +1035,7 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                                             setSimSwapDirection('A_to_B');
                                             setIsViewModalOpen(true);
                                         }}
-                                        className="flex-1 py-2 rounded-lg font-bold text-xs text-surface-500 dark:text-surface-400 hover:text-gray-900 dark:hover:text-white bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1"
+                                        className="flex-1 py-2 rounded-lg font-bold text-xs text-surface-500 dark:text-surface-400 hover:text-gray-600 dark:hover:text-white bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1"
                                     >
                                         <Eye size={13} className="text-sol-green" />
                                         View Pool
@@ -1693,7 +1690,7 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                                                 setSimSwapDirection('A_to_B');
                                                 setSimSwapAmount(0);
                                             }}
-                                            className={`px-2.5 py-1 rounded-md transition-colors ${simSwapDirection === 'A_to_B' ? 'bg-sol-green text-black' : 'text-surface-400 hover:text-white'}`}
+                                            className={`px-2.5 py-1 rounded-md transition-colors ${simSwapDirection === 'A_to_B' ? 'bg-sol-green text-black' : 'text-gray-700 hover:text-white'}`}
                                         >
                                             Sell {viewingPool.tokenA.symbol}
                                         </button>
@@ -1702,7 +1699,7 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                                                 setSimSwapDirection('B_to_A');
                                                 setSimSwapAmount(0);
                                             }}
-                                            className={`px-2.5 py-1 rounded-md transition-colors ${simSwapDirection === 'B_to_A' ? 'bg-sol-purple text-white' : 'text-surface-400 hover:text-white'}`}
+                                            className={`px-2.5 py-1 rounded-md transition-colors ${simSwapDirection === 'B_to_A' ? 'bg-sol-purple text-white' : 'text-gray-700 hover:text-white'}`}
                                         >
                                             Sell {viewingPool.tokenB.symbol}
                                         </button>

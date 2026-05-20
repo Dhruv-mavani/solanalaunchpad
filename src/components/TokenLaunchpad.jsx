@@ -1046,7 +1046,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                     >
                         <ShieldCheck className="w-5 h-5 text-sol-green animate-pulse" />
                         <span>{showTokensConsole ? 'Hide Your Tokens' : 'View Your Tokens'}</span>
-                        <span className="bg-brand-500/20 px-2 py-0.5 rounded-full text-xs font-bold text-white">
+                        <span className="bg-brand-400/100 px-2 py-0.5 rounded-full text-xs font-bold text-white">
                             {createdTokens.length}
                         </span>
                     </button>
@@ -1144,7 +1144,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                                             href={`https://explorer.solana.com/address/${token.mint}${network === 'devnet' ? '?cluster=devnet' : ''}`}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="py-2.5 rounded-xl font-bold text-surface-500 dark:text-surface-400 hover:text-gray-900 dark:hover:text-white bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1 text-xs"
+                                            className="py-2.5 rounded-xl font-bold text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-white bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 hover:bg-black/10 dark:hover:bg-white/10 transition-all flex items-center justify-center gap-1 text-xs"
                                         >
                                             <ExternalLink size={13} />
                                             Explorer
@@ -1185,27 +1185,27 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                             <div className="text-center space-y-2 z-10 w-full px-2">
                                 <h3 className="text-2xl font-black text-white flex items-center justify-center gap-2">
                                     {viewingToken.name}
-                                    <span className="text-xs text-brand-400 font-mono bg-brand-500/10 px-2 py-0.5 rounded-full border border-brand-500/25">
+                                    <span className="text-xs text-brand-500 font-mono bg-brand-500/10 px-2 py-0.5 rounded-full border border-brand-500/25">
                                         {viewingToken.symbol}
                                     </span>
                                 </h3>
-                                <p className="font-mono text-xs text-surface-400 font-semibold break-all bg-black/20 px-3 py-1 rounded-full border border-white/5 inline-block max-w-full">
+                                <p className="font-mono text-xs text-surface-300 font-semibold break-all bg-black/20 px-3 py-1 rounded-full border border-white/5 inline-block max-w-full">
                                     {viewingToken.mint}
                                 </p>
                             </div>
 
                             {/* Trust score / Audit list */}
                             <div className="w-full mt-6 space-y-3 z-10">
-                                <h5 className="text-[10px] uppercase font-bold text-surface-500 tracking-wider">Token Security Audit</h5>
+                                <h5 className="text-[10px] uppercase font-bold text-white tracking-wider">Token Security Audit</h5>
                                 <div className="space-y-2 text-xs font-semibold">
                                     <div className="flex justify-between items-center bg-black/10 p-2.5 rounded-xl">
-                                        <span className="text-surface-400">Total Supply</span>
-                                        <span className="text-gray-500 font-extrabold font-mono">
+                                        <span className="text-white">Total Supply</span>
+                                        <span className="text-white font-extrabold font-mono">
                                             {Number(viewingToken.supply).toLocaleString()} {viewingToken.symbol}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center bg-black/10 p-2.5 rounded-xl">
-                                        <span className="text-surface-400">Mint Authority</span>
+                                        <span className="text-white">Mint Authority</span>
                                         {!viewingToken.mintAuthority ? (
                                             <span className="text-sol-green flex items-center gap-1">
                                                 <Lock size={12} /> Locked (Fixed)
@@ -1217,7 +1217,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                                         )}
                                     </div>
                                     <div className="flex justify-between items-center bg-black/10 p-2.5 rounded-xl">
-                                        <span className="text-surface-400">Freeze Authority</span>
+                                        <span className="text-white">Freeze Authority</span>
                                         {!viewingToken.freezeAuthority ? (
                                             <span className="text-sol-green flex items-center gap-1">
                                                 <Lock size={12} /> Revoked (Safe)

@@ -180,7 +180,7 @@ function MainAppContent({ network, handleSetNetwork, view, handleSetView }) {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-surface-500 dark:text-surface-400 border-t border-surface-200 dark:border-surface-800">
-        <p>Built with 💜 for the 100xDevs Cohort</p>
+        <p>Built With 💜 By <a href="https://github.com/Dhruv-mavani" target="_blank" rel="noopener noreferrer" className="text-brand-400 underline hover:text-gray-600 transition-colors font-bold">Dhruv Mavani</a></p>
       </footer>
 
     </div>
