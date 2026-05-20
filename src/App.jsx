@@ -53,7 +53,7 @@ function MainAppContent({ network, handleSetNetwork, view, handleSetView }) {
     <div className="min-h-screen bg-gradient-animated flex flex-col font-sans text-surface-900 dark:text-white">
 
       {/* Top Navigation Bar */}
-      <nav className="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between shadow-sm">
+      <nav className="sticky top-0 z-50 px-6 py-4 flex items-center justify-between border-b border-black/5 dark:border-white/5 bg-white/70 dark:bg-surface-900/75 backdrop-blur-md shadow-sm">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-600 to-sol-purple flex items-center justify-center shadow-lg animate-pulse-glow flex-shrink-0">
             <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
