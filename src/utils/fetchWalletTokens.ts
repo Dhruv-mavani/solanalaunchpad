@@ -1,62 +1,33 @@
 import { Connection, PublicKey } from "@solana/web3.js";
 import { TokenData } from "../types/token";
 import { getTokenMetadata } from "./getTokenMetadata";
+import { unpackAccount, getMint } from "@solana/spl-token";
 
 export async function fetchWalletTokens(
     connection: Connection,
     publicKey: PublicKey
 ): Promise<TokenData[]> {
-    let activeConnection = connection;
     let tokenAccounts;
 
     try {
-        // Try the primary connection first
-        tokenAccounts = await connection.getParsedTokenAccountsByOwner(
+        // Alchemy natively supports getTokenAccountsByOwner (it only blocks getProgramAccounts/getParsedTokenAccountsByOwner)
+        const response = await connection.getTokenAccountsByOwner(
             publicKey,
             {
                 programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
             }
         );
+        tokenAccounts = response.value;
     } catch (err) {
-        console.warn("Primary RPC token fetch failed, retrying with public Solana RPCs...", err);
-        const isDevnet = connection.rpcEndpoint.includes("devnet") || connection.rpcEndpoint.includes("alchemy");
-        
-        const fallbackUrls = isDevnet ? [
-            "https://api.devnet.solana.com",
-            "https://devnet.solana.com",
-            "https://rpc.ankr.com/solana_devnet"
-        ] : [
-            "https://api.mainnet-beta.solana.com"
-        ];
-
-        let success = false;
-        for (const url of fallbackUrls) {
-            try {
-                activeConnection = new Connection(url, "confirmed");
-                tokenAccounts = await activeConnection.getParsedTokenAccountsByOwner(
-                    publicKey,
-                    {
-                        programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA")
-                    }
-                );
-                success = true;
-                break;
-            } catch (fallbackErr) {
-                console.log(`Fallback ${url} failed...`);
-            }
-        }
-
-        if (!success || !tokenAccounts) {
-            console.error("All token account fetch attempts failed.");
-            return [];
-        }
+        console.error("Failed to fetch token accounts:", err);
+        return [];
     }
 
     const tokens: TokenData[] = [];
 
     // Fetch native SOL balance
     try {
-        const solBalance = await activeConnection.getBalance(publicKey);
+        const solBalance = await connection.getBalance(publicKey);
         if (solBalance > 0) {
             tokens.push({
                 mint: "So11111111111111111111111111111111111111112",
@@ -72,101 +43,132 @@ export async function fetchWalletTokens(
         console.error("Failed to fetch SOL balance", e);
     }
 
-    for (const account of tokenAccounts.value) {
-        const parsedInfo = account.account.data.parsed.info;
-        const balance = parsedInfo.tokenAmount.uiAmount;
-        const decimals = parsedInfo.tokenAmount.decimals;
+    const gateways = [
+        "https://gateway.ipfscdn.io/ipfs/",
+        "https://ipfs.crossbell.io/ipfs/",
+        "https://ipfs.near.social/ipfs/",
+        "https://w3s.link/ipfs/",
+        "https://4everland.io/ipfs/",
+        "https://hardbin.com/ipfs/",
+        "https://cf-ipfs.com/ipfs/",
+        "https://gateway.pinata.cloud/ipfs/"
+    ];
 
-        // Skip empty balances
-        if (!balance || balance <= 0) continue;
+    // Helper for fetching with a strict timeout
+    const fetchWithTimeout = async (url: string, timeoutMs = 800) => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+        try {
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            return response;
+        } catch (err) {
+            clearTimeout(timeoutId);
+            throw err;
+        }
+    };
 
-        // Fetch Metaplex metadata
-        const metadata = await getTokenMetadata(activeConnection, parsedInfo.mint);
+    // Parse all token accounts in parallel
+    const tokenPromises = tokenAccounts.map(async (accountInfo) => {
+        try {
+            const accountData = unpackAccount(accountInfo.pubkey, accountInfo.account);
+            
+            // Skip empty balances immediately to save RPC calls
+            if (accountData.amount <= BigInt(0)) return null;
 
-        let image = "";
-        let description = "";
+            // Fetch Mint Info to get the decimals (getAccountInfo is supported on Alchemy free tier)
+            const mintInfo = await getMint(connection, accountData.mint);
+            const decimals = mintInfo.decimals;
+            
+            // Calculate UI balance
+            const balance = Number(accountData.amount) / Math.pow(10, decimals);
 
-        // Fetch metadata JSON
-        if (metadata?.uri) {
-            try {
-                let metadataUri = metadata.uri;
-                let hash = "";
+            // Fetch Metaplex metadata
+            const metadata = await getTokenMetadata(connection, accountData.mint.toBase58());
 
-                if (metadataUri.startsWith("ipfs://")) {
-                    hash = metadataUri.replace("ipfs://", "");
-                } else if (metadataUri.includes("/ipfs/")) {
-                    hash = metadataUri.split("/ipfs/")[1];
-                }
+            let image = "";
+            let description = "";
 
-                const gateways = [
-                    "https://gateway.ipfscdn.io/ipfs/",
-                    "https://ipfs.crossbell.io/ipfs/",
-                    "https://ipfs.near.social/ipfs/",
-                    "https://w3s.link/ipfs/",
-                    "https://4everland.io/ipfs/",
-                    "https://hardbin.com/ipfs/",
-                    "https://cf-ipfs.com/ipfs/",
-                    "https://gateway.pinata.cloud/ipfs/"
-                ];
-
-                let json = null;
-
-                // Try direct HTTP fetch first (upgrading to HTTPS)
+            // Fetch metadata JSON
+            if (metadata?.uri) {
                 try {
-                    let secureUri = metadataUri.startsWith("http://")
-                        ? metadataUri.replace("http://", "https://")
-                        : metadataUri;
-                    
-                    // Route around known blocked hostnames before even attempting
-                    if (secureUri.includes("gateway.pinata.cloud") || secureUri.includes("ipfs.io") || secureUri.includes("cloudflare-ipfs")) {
-                        secureUri = `https://gateway.ipfscdn.io/ipfs/${hash}`;
+                    let metadataUri = metadata.uri;
+                    let hash = "";
+
+                    if (metadataUri.startsWith("ipfs://")) {
+                        hash = metadataUri.replace("ipfs://", "");
+                    } else if (metadataUri.includes("/ipfs/")) {
+                        hash = metadataUri.split("/ipfs/")[1];
                     }
 
-                    const response = await fetch(secureUri);
-                    if (response.ok) {
-                        json = await response.json();
-                    }
-                } catch (e) {
-                    console.log("Direct metadata fetch failed, retrying fallbacks...");
-                }
+                    let json = null;
 
-                if (!json && hash) {
-                    for (const gateway of gateways) {
-                        try {
-                            const response = await fetch(`${gateway}${hash}`);
-                            if (response.ok) {
-                                json = await response.json();
-                                break;
+                    try {
+                        let secureUri = metadataUri.startsWith("http://")
+                            ? metadataUri.replace("http://", "https://")
+                            : metadataUri;
+                        
+                        // Route around known blocked hostnames
+                        if (secureUri.includes("gateway.pinata.cloud") || secureUri.includes("ipfs.io") || secureUri.includes("cloudflare-ipfs")) {
+                            secureUri = `https://gateway.ipfscdn.io/ipfs/${hash}`;
+                        }
+
+                        const response = await fetchWithTimeout(secureUri, 1000);
+                        if (response.ok) {
+                            json = await response.json();
+                        }
+                    } catch (e) {
+                        // Direct metadata fetch failed or timed out
+                    }
+
+                    if (!json && hash) {
+                        for (const gateway of gateways) {
+                            try {
+                                const response = await fetchWithTimeout(`${gateway}${hash}`, 800);
+                                if (response.ok) {
+                                    json = await response.json();
+                                    break;
+                                }
+                            } catch (e) {
+                                continue;
                             }
-                        } catch (e) {
-                            continue;
                         }
                     }
-                }
 
-                if (json) {
-                    if (json.image) {
-                        // Upgrade http to https to avoid Vercel mixed content block
-                        image = json.image.startsWith("http://")
-                            ? json.image.replace("http://", "https://")
-                            : json.image;
+                    if (json) {
+                        if (json.image) {
+                            image = json.image.startsWith("http://")
+                                ? json.image.replace("http://", "https://")
+                                : json.image;
+                        }
+                        description = json.description || "";
                     }
-                    description = json.description || "";
+                } catch (err) {
+                    console.log("Failed to fetch JSON metadata");
                 }
-            } catch (err) {
-                console.log("Failed to fetch JSON metadata");
             }
-        }
 
-        tokens.push({
-            mint: parsedInfo.mint,
-            symbol: metadata?.symbol?.trim() || parsedInfo.mint.slice(0, 4),
-            name: metadata?.name?.trim() || parsedInfo.mint.slice(0, 8),
-            image,
-            description,
-            balance,
-            decimals
-        });
+            return {
+                mint: accountData.mint.toBase58(),
+                symbol: metadata?.symbol?.trim() || accountData.mint.toBase58().slice(0, 4),
+                name: metadata?.name?.trim() || accountData.mint.toBase58().slice(0, 8),
+                image,
+                description,
+                balance,
+                decimals
+            };
+        } catch (innerErr) {
+            console.error("Failed to parse individual token account:", innerErr);
+            return null;
+        }
+    });
+
+    const parsedTokens = await Promise.all(tokenPromises);
+
+    for (const t of parsedTokens) {
+        if (t) {
+            tokens.push(t);
+        }
     }
 
     return tokens;

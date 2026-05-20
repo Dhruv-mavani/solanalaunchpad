@@ -68,10 +68,8 @@ function SafeTokenImage({ src, alt, className }) {
     const gateways = [];
     if (src && (src.startsWith("http://") || src.startsWith("https://"))) {
         const secureSrc = src.startsWith("http://") ? src.replace("http://", "https://") : src;
-        // Skip adding notoriously blocked gateways to the primary slot to prevent ERR_CONNECTION_RESET logs
-        if (!secureSrc.includes("gateway.pinata.cloud") && !secureSrc.includes("ipfs.io") && !secureSrc.includes("cloudflare-ipfs") && !secureSrc.includes("dweb.link")) {
-            gateways.push(secureSrc);
-        }
+        // Always try the original URL first - it's the most accurate and usually resolved instantly or cached by the browser
+        gateways.push(secureSrc);
     }
     
     if (ipfsHash) {

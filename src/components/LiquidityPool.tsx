@@ -119,9 +119,12 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
         }
     };
 
-    const handleImportPool = async (poolIdToImport?: string) => {
+    const handleImportPool = async (poolIdToImport?: string | React.MouseEvent) => {
         if (!publicKey) return;
-        const targetId = poolIdToImport || importPoolId;
+        // Check if poolIdToImport is a React synthetic event from an onClick handler
+        const isEvent = poolIdToImport && typeof poolIdToImport === 'object' && 'nativeEvent' in poolIdToImport;
+        const targetId = (!isEvent && typeof poolIdToImport === 'string') ? poolIdToImport : importPoolId;
+        
         if (!targetId || targetId.length < 32 || targetId.length > 44) {
             showToast("Please enter a valid Solana address", "error");
             return;
@@ -150,7 +153,8 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                     symbol,
                     name: symbol,
                     balance: 0,
-                    decimals: mint.equals(NATIVE_MINT) ? 9 : 6
+                    decimals: mint.equals(NATIVE_MINT) ? 9 : 6,
+                    image: ""
                 };
             };
 
@@ -306,7 +310,8 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                             symbol,
                             name: symbol,
                             balance: 0,
-                            decimals: mint.equals(NATIVE_MINT) ? 9 : 6
+                            decimals: mint.equals(NATIVE_MINT) ? 9 : 6,
+                            image: ""
                         };
                     };
 
@@ -558,8 +563,8 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                 Number(addAmountB)
             );
 
-            const resolvedA = poolDetails?.tokenA || { symbol: 'TOKEN A', mint: mintA };
-            const resolvedB = poolDetails?.tokenB || { symbol: 'TOKEN B', mint: mintB };
+            const resolvedA = poolDetails?.tokenA || { symbol: 'TOKEN A', mint: mintA, image: "" };
+            const resolvedB = poolDetails?.tokenB || { symbol: 'TOKEN B', mint: mintB, image: "" };
 
             const newPool: CreatedPoolData = {
                 poolId: addLiquidityPoolId,
@@ -723,7 +728,8 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                         symbol,
                         name: symbol,
                         balance: 0,
-                        decimals: mint.equals(NATIVE_MINT) ? 9 : 6
+                        decimals: mint.equals(NATIVE_MINT) ? 9 : 6,
+                        image: ""
                     };
                 };
 
@@ -750,9 +756,18 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
 
     useEffect(() => {
         async function loadTokens() {
-            if (!publicKey) return;
-            const fetchedTokens = await fetchWalletTokens(connection, publicKey);
-            setTokens(fetchedTokens);
+            if (!publicKey) {
+                console.log("loadTokens: Wallet not connected, skipping...");
+                return;
+            }
+            try {
+                console.log("loadTokens: Fetching tokens for wallet:", publicKey.toBase58());
+                const fetchedTokens = await fetchWalletTokens(connection, publicKey);
+                console.log("loadTokens: Successfully fetched tokens:", fetchedTokens);
+                setTokens(fetchedTokens);
+            } catch (err) {
+                console.error("loadTokens: Error during fetchWalletTokens:", err);
+            }
         }
         loadTokens();
     }, [publicKey, network]);
