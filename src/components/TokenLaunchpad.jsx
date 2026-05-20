@@ -1233,26 +1233,30 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                         </div>
 
                         {/* RIGHT PANEL: Interactive Management Deck */}
-                        <div className="w-full md:w-3/5 p-6 md:p-8 flex flex-col gap-6 overflow-y-auto max-h-[60vh] md:max-h-[85vh]">
-                            {/* Close Modal button */}
-                            <button 
-                                onClick={() => {
-                                    setViewingToken(null);
-                                    setDashboardError(null);
-                                    setMintAmountInput('');
-                                    setRecipientAddress('');
-                                    setTransferAmountInput('');
-                                    setFreezeTargetAddress('');
-                                }}
-                                className="absolute top-6 right-6 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-surface-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-
-                            <div>
-                                <h4 className="text-xl font-extrabold text-gray-500 dark:text-white">Token Management Suite</h4>
-                                <p className="text-xs text-surface-500 mt-1">Manage permissions, mint additional reserves, or distribute token supply to recipients.</p>
+                        <div className="w-full md:w-3/5 flex flex-col max-h-[60vh] md:max-h-[85vh] relative min-h-0">
+                            {/* Fixed Header (Does not scroll, close button will never overlap scrolling items!) */}
+                            <div className="p-6 md:p-8 pb-4 flex justify-between items-start border-b border-black/5 dark:border-white/5 relative z-10 flex-shrink-0">
+                                <div>
+                                    <h4 className="text-xl font-extrabold text-gray-500 dark:text-white">Token Management Suite</h4>
+                                    <p className="text-xs text-surface-500 mt-1">Manage permissions, mint additional reserves, or distribute token supply to recipients.</p>
+                                </div>
+                                <button 
+                                    onClick={() => {
+                                        setViewingToken(null);
+                                        setDashboardError(null);
+                                        setMintAmountInput('');
+                                        setRecipientAddress('');
+                                        setTransferAmountInput('');
+                                        setFreezeTargetAddress('');
+                                    }}
+                                    className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-surface-400 hover:text-gray-900 dark:hover:text-white transition-colors flex-shrink-0"
+                                >
+                                    <X size={20} />
+                                </button>
                             </div>
+
+                            {/* Scrollable Content Body */}
+                            <div className="flex-1 p-6 md:p-8 pt-4 overflow-y-auto space-y-6 flex flex-col min-h-0">
 
                             {/* Tab 1: On-Chain Security Locks */}
                             <div className="glass p-4 rounded-2xl border border-black/5 dark:border-white/5 space-y-3.5">
@@ -1326,7 +1330,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                                                 value={mintAmountInput}
                                                 onChange={(e) => setMintAmountInput(e.target.value)}
                                                 placeholder="Amount of tokens to mint"
-                                                className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-surface-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                                className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-500 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                                             />
                                         </div>
                                         <button
@@ -1353,7 +1357,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                                         value={recipientAddress}
                                         onChange={(e) => setRecipientAddress(e.target.value)}
                                         placeholder="Recipient Solana wallet address"
-                                        className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-surface-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                        className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-500 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                                     />
                                     <div className="flex gap-3">
                                         <div className="flex-1">
@@ -1362,7 +1366,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                                                 value={transferAmountInput}
                                                 onChange={(e) => setTransferAmountInput(e.target.value)}
                                                 placeholder="Amount to send"
-                                                className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-surface-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                                className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-500 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                                             />
                                         </div>
                                         <button
@@ -1397,7 +1401,7 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                                             value={freezeTargetAddress}
                                             onChange={(e) => setFreezeTargetAddress(e.target.value)}
                                             placeholder="User's Solana wallet address"
-                                            className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-surface-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                            className="w-full bg-black/5 dark:bg-black/20 border border-black/10 dark:border-white/10 rounded-xl px-4 py-2.5 text-sm text-gray-500 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                                         />
                                         <div className="flex gap-3">
                                             <button
@@ -1421,20 +1425,24 @@ export function TokenLaunchpad({ network = 'devnet' }) {
                                 )}
                             </div>
 
-                            {/* Modal-wide clean wrapped error alerts */}
+                            </div>
+
+                            {/* Sticky Modal Error alerts at bottom of Right Panel */}
                             {dashboardError && (
-                                <div className="w-full flex items-start gap-2 p-3.5 rounded-xl border bg-red-500/10 border-red-500/20 text-red-400 text-left backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200 max-w-full overflow-hidden">
-                                    <AlertCircle className="w-4.5 h-4.5 mt-0.5 flex-shrink-0" />
-                                    <div className="flex-1 flex flex-col gap-0.5 min-w-0 overflow-hidden">
-                                        <span className="text-[10px] font-bold uppercase tracking-wider">Dashboard Action Error</span>
-                                        <p className="text-xs font-semibold leading-relaxed break-words whitespace-pre-wrap overflow-hidden">{dashboardError}</p>
+                                <div className="px-6 md:px-8 pb-6 flex-shrink-0">
+                                    <div className="w-full flex-shrink-0 flex items-start gap-2 p-3.5 rounded-xl border bg-red-500/10 border-red-500/20 text-red-600 dark:text-red-400 text-left backdrop-blur-md animate-in fade-in slide-in-from-top-2 duration-200 max-w-full overflow-hidden">
+                                        <AlertCircle className="w-4.5 h-4.5 mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1 flex flex-col min-w-0">
+                                            <span className="text-[10px] font-bold uppercase tracking-wider">Dashboard Action Error</span>
+                                            <p className="text-xs font-semibold text-red-700 dark:text-red-200 leading-relaxed break-words whitespace-pre-wrap mt-1">{String(dashboardError)}</p>
+                                        </div>
+                                        <button 
+                                            onClick={() => setDashboardError(null)}
+                                            className="p-0.5 rounded hover:bg-white/10 transition-colors flex-shrink-0"
+                                        >
+                                            <X className="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
-                                    <button 
-                                        onClick={() => setDashboardError(null)}
-                                        className="p-0.5 rounded hover:bg-white/10 transition-colors flex-shrink-0"
-                                    >
-                                        <X className="w-3.5 h-3.5" />
-                                    </button>
                                 </div>
                             )}
                         </div>
