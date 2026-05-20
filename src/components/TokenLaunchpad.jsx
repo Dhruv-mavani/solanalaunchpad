@@ -902,11 +902,11 @@ export function TokenLaunchpad({ network = 'devnet' }) {
 
                 {/* Progress Indicator */}
                 <div className="flex items-center justify-between mb-8 relative">
-                    <div className="absolute left-0 right-0 top-1/2 h-1 bg-surface-200 dark:bg-surface-800 -z-10 rounded-full transform -translate-y-1/2"></div>
-                    <div className="absolute left-0 top-1/2 h-1 bg-brand-500 -z-10 rounded-full transform -translate-y-1/2 transition-all duration-300" style={{ width: `${((step - 1) / 2) * 100}%` }}></div>
+                    <div className="absolute left-0 right-0 top-1/2 h-1 bg-surface-200 dark:bg-surface-800 z-0 rounded-full transform -translate-y-1/2"></div>
+                    <div className="absolute left-0 top-1/2 h-1 bg-brand-500 z-0 rounded-full transform -translate-y-1/2 transition-all duration-300" style={{ width: `${((step - 1) / 2) * 100}%` }}></div>
 
                     {[1, 2, 3].map(num => (
-                        <div key={num} className={`w-8 h-8 rounded-full flex items-center justify-center font-medium transition-all duration-300 ${step >= num ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30' : 'bg-surface-100 dark:bg-surface-900 text-surface-400 border border-surface-200 dark:border-surface-700'
+                        <div key={num} className={`w-8 h-8 rounded-full flex items-center justify-center font-medium transition-all duration-300 relative z-10 ${step >= num ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/30' : 'bg-surface-100 dark:bg-surface-900 text-surface-400 border border-surface-200 dark:border-surface-700'
                             }`}>
                             {step > num ? <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"></path></svg> : num}
                         </div>
