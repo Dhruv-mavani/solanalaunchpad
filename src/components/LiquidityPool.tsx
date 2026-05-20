@@ -1,4 +1,4 @@
-import { Plus, X, Loader2, AlertTriangle, AlertCircle, Copy, ExternalLink, Check, Layers, Coins, Sparkles, RefreshCw, Eye, ArrowLeftRight, TrendingUp, Info } from "lucide-react";
+import { Plus, X, Loader2, AlertTriangle, AlertCircle, Copy, ExternalLink, Check, Layers, Coins, Sparkles, RefreshCw, Eye, ArrowLeftRight, TrendingUp, Info, Globe } from "lucide-react";
 import { useState, useEffect } from "react";
 import { TokenSelector } from "./TokenSelector";
 import { TokenData } from "../types/token";
@@ -71,7 +71,7 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
     const [copiedId, setCopiedId] = useState<string | null>(null);
     const [isSyncing, setIsSyncing] = useState(false);
     const [isProgramAccountsSupported, setIsProgramAccountsSupported] = useState(true);
-    const [showPoolsConsole, setShowPoolsConsole] = useState(false);
+    const [showPoolsConsole, setShowPoolsConsole] = useState(true);
 
     // View pool simulator states
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -104,6 +104,142 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
     // Existing pool detection states
     const [existingPoolAddress, setExistingPoolAddress] = useState<string | null>(null);
     const [isCheckingExisting, setIsCheckingExisting] = useState(false);
+
+    const [allPools, setAllPools] = useState<CreatedPoolData[]>([]);
+    const [poolsTab, setPoolsTab] = useState<'my' | 'all'>('my');
+
+    const getSavedAllPools = (): CreatedPoolData[] => {
+        const saved = localStorage.getItem(`solana_launchpad_pools_all_${network}`);
+        if (!saved) {
+            const myPools = getSavedPools();
+            if (myPools.length > 0) {
+                localStorage.setItem(`solana_launchpad_pools_all_${network}`, JSON.stringify(myPools));
+                return myPools;
+            }
+            return [];
+        }
+        try {
+            const parsed: CreatedPoolData[] = JSON.parse(saved);
+            return parsed.filter(p => p && p.poolId && p.poolId.length >= 32);
+        } catch (e) {
+            return [];
+        }
+    };
+
+    const publishPoolToCloud = async (newPoolId: string) => {
+        try {
+            let existingPoolIds: string[] = [];
+            try {
+                const res = await fetch(`https://kvdb.io/DHruvmAvAnIToKeNpAdS/pools_${network}`);
+                if (res.ok) {
+                    const text = await res.text();
+                    if (text && text.trim().length > 0) {
+                        existingPoolIds = text.split(",").map(s => s.trim()).filter(s => s.length >= 32);
+                    }
+                }
+            } catch (e) {
+                // Ignore fetch error, assume empty
+            }
+
+            if (!existingPoolIds.includes(newPoolId)) {
+                existingPoolIds.unshift(newPoolId);
+                if (existingPoolIds.length > 30) {
+                    existingPoolIds = existingPoolIds.slice(0, 30);
+                }
+                const bodyStr = existingPoolIds.join(",");
+                await fetch(`https://kvdb.io/DHruvmAvAnIToKeNpAdS/pools_${network}`, {
+                    method: 'POST',
+                    body: bodyStr
+                });
+            }
+        } catch (e) {
+            console.warn("Failed to publish pool to cloud:", e);
+        }
+    };
+
+    const syncCloudPools = async () => {
+        try {
+            const res = await fetch(`https://kvdb.io/DHruvmAvAnIToKeNpAdS/pools_${network}`);
+            if (!res.ok) return;
+            const text = await res.text();
+            if (!text || text.trim().length === 0) return;
+            
+            const poolIds: string[] = text.split(",").map(s => s.trim()).filter(s => s.length >= 32);
+            if (poolIds.length === 0) return;
+
+            let localAll = getSavedAllPools();
+            let updated = false;
+
+            const promises = poolIds.map(async (id) => {
+                if (localAll.some(p => p.poolId === id)) return null;
+
+                try {
+                    const poolPubkey = new PublicKey(id);
+                    const accountInfo = await connection.getAccountInfo(poolPubkey);
+                    if (!accountInfo) return null;
+
+                    const state = CpmmPoolInfoLayout.decode(accountInfo.data);
+                    const vaultABal = await connection.getTokenAccountBalance(state.vaultA);
+                    const vaultBBal = await connection.getTokenAccountBalance(state.vaultB);
+
+                    const resolveToken = (mint: PublicKey): TokenData => {
+                        const mintStr = mint.toBase58();
+                        const known = tokens.find(t => t.mint === mintStr);
+                        if (known) return known;
+                        const symbol = mintStr === 'So11111111111111111111111111111111111111112' ? 'SOL' : mintStr.slice(0, 4) + '..' + mintStr.slice(-4);
+                        return {
+                            mint: mintStr,
+                            symbol,
+                            name: symbol,
+                            balance: 0,
+                            decimals: mint.equals(NATIVE_MINT) ? 9 : 6,
+                            image: ""
+                        };
+                    };
+
+                    const tokenA = resolveToken(state.mintA);
+                    const tokenB = resolveToken(state.mintB);
+
+                    return {
+                        poolId: id,
+                        tokenA: {
+                            mint: state.mintA.toBase58(),
+                            symbol: tokenA.symbol,
+                            image: tokenA.image,
+                            amount: vaultABal.value.uiAmount || 0
+                        },
+                        tokenB: {
+                            mint: state.mintB.toBase58(),
+                            symbol: tokenB.symbol,
+                            image: tokenB.image,
+                            amount: vaultBBal.value.uiAmount || 0
+                        },
+                        signature: "synced",
+                        network,
+                        createdAt: Date.now()
+                    };
+                } catch (e) {
+                    console.error("Silent sync failed for pool:", id, e);
+                    return null;
+                }
+            });
+
+            const resolved = await Promise.all(promises);
+            for (const p of resolved) {
+                if (p) {
+                    localAll.unshift(p);
+                    updated = true;
+                }
+            }
+
+            if (updated) {
+                localStorage.setItem(`solana_launchpad_pools_all_${network}`, JSON.stringify(localAll));
+                setAllPools(localAll);
+            }
+        } catch (e) {
+            console.warn("Cloud pools sync failed:", e);
+        }
+    };
 
     const getSavedPools = (): CreatedPoolData[] => {
         if (!publicKey) return [];
@@ -190,6 +326,19 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
             );
 
             setCreatedPools(poolsList);
+
+            let allList = getSavedAllPools();
+            allList = allList.filter(p => p.poolId !== targetId);
+            allList.unshift(newPool);
+
+            localStorage.setItem(
+                `solana_launchpad_pools_all_${network}`,
+                JSON.stringify(allList)
+            );
+
+            setAllPools(allList);
+            publishPoolToCloud(targetId);
+
             setIsImportModalOpen(false);
             setImportPoolId("");
             showToast("Pool successfully imported to dashboard!", "success");
@@ -523,6 +672,19 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
             );
 
             setCreatedPools(poolsList);
+
+            let allList = getSavedAllPools();
+            allList = allList.filter(p => p.poolId !== poolId);
+            allList.unshift(newPool);
+
+            localStorage.setItem(
+                `solana_launchpad_pools_all_${network}`,
+                JSON.stringify(allList)
+            );
+
+            setAllPools(allList);
+            publishPoolToCloud(poolId);
+
             setSuccessPool(newPool);
             showToast(`Pool Created Successfully!`, "success");
             
@@ -682,6 +844,9 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
 
     // Load created pools from local storage and trigger automatic blockchain scan
     useEffect(() => {
+        setAllPools(getSavedAllPools());
+        syncCloudPools();
+        
         if (!publicKey) {
             setCreatedPools([]);
             return;
@@ -906,83 +1071,120 @@ export const LiquidityPool = ({ network }: { network: "devnet" | "mainnet-beta" 
                 </button>
             </div>
 
-            {publicKey && (
-                <div className="mt-8 flex justify-center animate-in fade-in duration-300">
-                    <button
-                        onClick={() => setShowPoolsConsole(!showPoolsConsole)}
-                        className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl border transition-all font-extrabold text-sm shadow-lg ${
-                            showPoolsConsole
-                                ? 'bg-gradient-to-r from-brand-600 to-sol-purple text-white border-brand-500/20 shadow-brand-500/10'
-                                : 'bg-white/5 hover:bg-white/10 text-brand-400 border-white/5 hover:border-white/10'
-                        }`}
-                    >
-                        <Layers className="w-5 h-5 text-brand-300/100 animate-pulse" />
-                        <span>{showPoolsConsole ? 'Hide Your Liquidity Pools' : 'View Your Liquidity Pools'}</span>
-                        <span className="bg-brand-400/100 px-2 py-0.5 rounded-full text-xs font-bold text-white">
-                            {createdPools.length}
-                        </span>
-                    </button>
-                </div>
-            )}
+            <div className="mt-8 flex justify-center animate-in fade-in duration-300">
+                <button
+                    onClick={() => setShowPoolsConsole(!showPoolsConsole)}
+                    className={`flex items-center gap-2.5 px-6 py-3 rounded-2xl border transition-all font-extrabold text-sm shadow-lg ${
+                        showPoolsConsole
+                            ? 'bg-gradient-to-r from-brand-600 to-sol-purple text-white border-brand-500/20 shadow-brand-500/10'
+                            : 'bg-white/5 hover:bg-white/10 text-brand-400 border-white/5 hover:border-white/10'
+                    }`}
+                >
+                    <Layers className="w-5 h-5 text-brand-300/100 animate-pulse" />
+                    <span>{showPoolsConsole ? 'Hide Pools Feed' : 'View Pools Feed'}</span>
+                    <span className="bg-brand-400/100 px-2 py-0.5 rounded-full text-xs font-bold text-white">
+                        {poolsTab === 'my' ? createdPools.length : allPools.length}
+                    </span>
+                </button>
+            </div>
 
-            {/* MY CREATED POOLS LIST SECTION */}
+            {/* MY & GLOBAL CREATED POOLS LIST SECTION */}
             {showPoolsConsole && (
                 <div className="pt-10 text-left space-y-6">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-surface-300 to-surface-500 flex items-center gap-2">
-                        <Layers size={22} className="text-brand-500" />
-                        My Liquidity Pools
-                    </h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
+                    <div className="flex items-center gap-1 bg-black/25 dark:bg-white/5 p-1 rounded-2xl border border-white/10">
+                        <button
+                            onClick={() => setPoolsTab('my')}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 ${
+                                poolsTab === 'my'
+                                    ? 'bg-gradient-to-r from-brand-600 to-sol-purple text-white shadow-lg shadow-brand-500/10 border border-brand-400/20'
+                                    : 'text-surface-400 hover:text-surface-200 border border-transparent'
+                            }`}
+                        >
+                            <Layers size={14} className={poolsTab === 'my' ? 'animate-pulse' : ''} />
+                            My Pools
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${poolsTab === 'my' ? 'bg-white/20 text-white' : 'bg-white/5 text-surface-500'}`}>
+                                {createdPools.length}
+                            </span>
+                        </button>
+                        <button
+                            onClick={() => setPoolsTab('all')}
+                            className={`px-4 py-2.5 rounded-xl text-xs font-extrabold transition-all flex items-center gap-1.5 ${
+                                poolsTab === 'all'
+                                    ? 'bg-gradient-to-r from-brand-600 to-sol-purple text-white shadow-lg shadow-brand-500/10 border border-brand-400/20'
+                                    : 'text-surface-400 hover:text-surface-200 border border-transparent'
+                            }`}
+                        >
+                            <Globe size={14} className={poolsTab === 'all' ? 'animate-spin-slow' : ''} />
+                            All Pools
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${poolsTab === 'all' ? 'bg-white/20 text-white' : 'bg-white/5 text-surface-500'}`}>
+                                {allPools.length}
+                            </span>
+                        </button>
+                    </div>
+
                     <div className="flex items-center gap-3">
                         <button 
                             onClick={() => setIsImportModalOpen(true)}
                             disabled={!publicKey}
-                            className="p-2 rounded-xl border border-white/10 glass hover:border-brand-500/30 transition-all text-surface-400 hover:text-brand-500 flex items-center gap-1.5 text-xs font-bold"
+                            className="p-2.5 rounded-xl border border-white/10 glass hover:border-brand-500/30 transition-all text-surface-400 hover:text-brand-500 flex items-center gap-1.5 text-xs font-bold"
                             title="Import an existing pool by address"
                         >
                             <Plus size={14} />
                             Import Pool
                         </button>
                         <button 
-                            onClick={() => syncExistingPools(true)}
-                            disabled={isSyncing || !publicKey}
-                            className="p-2 rounded-xl border border-white/10 glass hover:border-white/20 transition-all text-surface-400 hover:text-surface-350 disabled:opacity-50 flex items-center gap-1.5 text-xs font-bold"
-                            title="Scan blockchain for your pools"
+                            onClick={async () => {
+                                setIsSyncing(true);
+                                try {
+                                    if (publicKey) await syncExistingPools(false);
+                                    await syncCloudPools();
+                                    showToast("Pools refreshed and synced!", "success");
+                                } catch (e) {
+                                    showToast("Failed to refresh pools feed", "error");
+                                } finally {
+                                    setIsSyncing(false);
+                                }
+                            }}
+                            className="p-2.5 rounded-xl border border-white/10 glass hover:border-white/20 transition-all text-surface-400 hover:text-surface-350 flex items-center gap-1.5 text-xs font-bold"
+                            title="Refresh feeds from chain and cloud"
                         >
                             <RefreshCw size={14} className={isSyncing ? "animate-spin" : ""} />
-                            Sync Pools
+                            Sync Feeds
                         </button>
-                        <span className="text-xs font-semibold px-3 py-1 bg-surface-200/10 dark:bg-white/5 border border-white/10 rounded-full text-surface-500">
-                            {createdPools.length} Active {createdPools.length === 1 ? 'Pool' : 'Pools'}
-                        </span>
                     </div>
                 </div>
 
-                {createdPools.length === 0 ? (
+                {((poolsTab === 'my' ? createdPools : allPools).length === 0) ? (
                     <div className="glass p-8 rounded-3xl border border-white/5 flex flex-col items-center justify-center text-center gap-4 py-12">
                         <Coins size={48} className="text-surface-500 opacity-40 animate-pulse" />
                         <div className="space-y-1">
-                            <h4 className="font-bold text-surface-500">No pools created yet</h4>
+                            <h4 className="font-bold text-surface-500">
+                                {poolsTab === 'my' ? 'No pools created yet' : 'No public pools loaded'}
+                            </h4>
                             <p className="text-sm text-surface-600 dark:text-surface-400 max-w-md">
-                                Connect your wallet and click <span className="text-sol-green font-bold">Initialize Pool</span> to launch your first persistent Raydium constant product market maker pool.
+                                {poolsTab === 'my' 
+                                    ? 'Connect your wallet and click Initialize Pool to launch your first persistent Raydium constant product market maker pool.'
+                                    : 'Scan the cloud or blockchain for active feeds. Create a pool or import one by ID to post it directly to the cohort shared database!'
+                                }
                             </p>
                         </div>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {createdPools.map((pool) => (
+                        {(poolsTab === 'my' ? createdPools : allPools).map((pool) => (
                             <div key={pool.poolId} className="glass p-6 rounded-2xl border border-white/10 hover:border-brand-500/30 transition-all duration-300 flex flex-col gap-4 shadow-lg hover:shadow-brand-500/5 group relative">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-3">
                                         <div className="flex items-center -space-x-2.5">
-                                            <div className="w-8 h-8 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center font-bold text-sol-green text-xs">
+                                            <div className="w-8 h-8 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center font-bold text-sol-green text-xs overflow-hidden">
                                                 {pool.tokenA.image ? (
                                                     <img src={pool.tokenA.image} alt={pool.tokenA.symbol} className="w-full h-full rounded-full object-cover" />
                                                 ) : (
                                                     pool.tokenA.symbol[0]
                                                 )}
                                             </div>
-                                            <div className="w-8 h-8 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center font-bold text-brand-500 text-xs">
+                                            <div className="w-8 h-8 rounded-full bg-surface-800 border border-surface-700 flex items-center justify-center font-bold text-brand-500 text-xs overflow-hidden">
                                                 {pool.tokenB.image ? (
                                                     <img src={pool.tokenB.image} alt={pool.tokenB.symbol} className="w-full h-full rounded-full object-cover" />
                                                 ) : (
