@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+.vercel
+
+# Anchor/Rust build output
+target/
+.anchor/

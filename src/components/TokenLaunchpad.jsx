@@ -1452,3 +1452,5 @@ export function TokenLaunchpad({ network = 'devnet' }) {
         </div>
     )
 }
+
+export default TokenLaunchpad;

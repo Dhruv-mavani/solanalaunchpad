@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import LiquidStaking from './components/LiquidStaking'
 import { ConnectionProvider, WalletProvider, useWallet } from '@solana/wallet-adapter-react'
 import {
   WalletModalProvider,
@@ -88,6 +89,35 @@ function MainAppContent({ network, handleSetNetwork, view, handleSetView }) {
                 <span className="hidden xs:inline">Liquidity Pools</span>
                 <span className="xs:hidden">Pools</span>
               </button>
+              <button
+  onClick={() => handleSetView('stake')}
+  className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold transition-all flex items-center gap-1.5 ${view === 'stake' 
+      ? 'bg-gradient-to-r from-brand-600 to-sol-purple text-white shadow-md'
+      : 'text-surface-600 dark:text-surface-400 hover:text-surface-900 dark:hover:text-white hover:bg-white/5'
+    }`}
+>
+  <svg
+    className="w-3.5 h-3.5"
+    fill="none"
+    stroke="currentColor"
+    viewBox="0 0 24 24"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth={2}
+      d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0-6v2m0 16v2m8-10h2M2 12H4m12.95 6.95l1.414 1.414M5.636 5.636L7.05 7.05m9.9 0l1.414-1.414M5.636 18.364L7.05 16.95"
+    />
+  </svg>
+
+  <span className="hidden xs:inline">
+    Stake
+  </span>
+
+  <span className="xs:hidden">
+    Stake
+  </span>
+</button>
             </div>
           )}
         </div>
@@ -171,10 +201,12 @@ function MainAppContent({ network, handleSetNetwork, view, handleSetView }) {
         ) : (
           /* AUTHENTICATED ACCESS */
           view === 'create_token' ? (
-            <TokenLaunchpad network={network} />
-          ) : (
-            <LiquidityPool network={network} />
-          )
+          <TokenLaunchpad network={network} />
+          ) : view === 'liquidity' ? (
+          <LiquidityPool network={network} />
+          ) : view === 'stake' ? (
+          <LiquidStaking network={network} />
+          ) : null
         )}
       </main>
 
